@@ -1,0 +1,287 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{placeins}
+\usepackage{indentfirst}
+
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}  % Set margins
+
+% \setlength{\parindent}{10pt}  % Disable paragraph indentation
+\captionsetup[figure]{skip=-10pt} % Adjust space below captions
+\captionsetup[figure]{font=scriptsize, skip=2pt}  % Reduce caption font size and space
+
+% Adjust spacing: \titlespacing*{command}{left}{before-sep}{after-sep}[right-sep]
+\titlespacing*{\section}{0pt}{1.0ex}{1.0ex}
+
+% Custom title command
+\makeatletter
+\renewcommand{\maketitle}{
+    {\raggedleft  % Right align the title block
+    \vspace*{-10pt}  % Reduce the space above the title
+    {\large\@title \par}  % Increase the font size of the title
+    \vspace{5pt}  % Space between title and author
+    {\normalsize\@author \par}
+    \vspace{5pt}  % Space between author and date
+    {\normalsize\@date \par}
+    \vspace{20pt}}  % Space after the title block
+}
+\makeatother
+
+\begin{document}
+
+\title{Homework \#4}
+\author{Daniel Dager}
+\date{}
+\maketitle
+
+\pagestyle{empty} % This will apply to all pages
+\thispagestyle{empty}
+
+\renewcommand{\thesection}{1.\arabic{section}}
+
+
+\section*{Introduction}
+
+In this report, we will be examining the application of the drift-diffusion model and recurrent neural networks to two-alternative forced-choice tasks.
+\vspace{1em}
+
+The drift-diffusion model is a mathematical model that describes the decision-making process of an agent. The model is based on the idea that the agent accumulates evidence over time until a decision threshold is reached. Since it is a model that can be simulated over time, it can be used to generate both the decision and the reaction time of the agent, which allows for a further dimension of comparison with behavioral data.
+\vspace{1em}
+
+Recurrent neural networks are a class of artificial neural networks that have connections between nodes that form a directed cycle. As opposed to feedforward neural networks, which have connections that only go in one direction, recurrent neural networks have connections that allow information to be passed from one node to another and back again. These networks are used to model the dynamics of a system and can also be used to predict the behavior of the agent over time.
+\vspace{1em}
+
+Finally, the two-alternative forced-choice task is a task in which the agent is presented with two options and must choose one. This task is commonly used in psychology to study decision-making and reaction times. The task can be manipulated by altering the degree of evidence in favor of one option over the other, or by increasing the overall difficulty of the task by introducing stochastic noise. 
+\vspace{1em}
+
+
+\section{}
+
+We begin by giving equation for the drift-diffusion model: 
+
+\begin{equation}
+    \frac{dx(t)}{dt} = \left( I_A - I_B \right) + \sigma \eta(t)
+\end{equation}
+\vspace{.1em}
+
+Here, $x$ is the decision variable, which accumulates in the direction of options $A$ or $B$. $I_A$ and $I_B$ are the decision inputs, which can be interpreted as the evidence for options $A$ and $B$, respectively. Finally, $\eta(t)$ is the noise term sampled from a Gaussian distribution with zero mean and unit variance, and $\sigma$ is a scalar applied to the noise term to control its magnitude.
+\vspace{1em}
+
+The decision is made when the decision variable $x$ reaches the threshold $\mu$ for $A$ or $-\mu$ for $B$, and the reaction time is the time it takes for the decision variable to reach the threshold.
+\vspace{1em}
+
+We now simulate the model 10 times using the Euler method, for 10000 time steps at $dt = 0.1$, with the following parameters: $I_A = 0.95$, $I_B = 1$, $\sigma = 7$, and $\mu = 2$. We will simulate the model for 100 trials and plot the decision variable $x(t)$ for each trial: 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{11.png}
+    \caption{The dotted lines represent the decision thresholds $\mu$ and $-\mu$.}
+\end{figure}
+\vspace{-1em}
+
+
+\section{}
+Now we will run the same simulation 1000 times and keep track of the decision counts for each trial, including the number of times that the model makes "no decision" (i.e., the decision variable does not reach the threshold within the simulation time). We will then plot the histogram of the decision counts for each trial:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{12.png}
+    \caption{The parameters of the model favor option $B$ over option $A$, and the model never fails to make a decision.}
+\end{figure}
+
+
+\section{}
+
+In this section, we will perform three sets of simulations of the drift-diffusion model, each time varying one of the parameters while fixing the others. This will allow us to observe the effect of each parameter on the decision-making process.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{131.png}
+    \includegraphics[width=1\textwidth]{132.png}
+    \includegraphics[width=1\textwidth]{133.png}
+\end{figure}
+
+
+\newpage{}
+
+When we vary the threshold value $\mu$, we can observe two main effects. When $\mu$ is small, the decision variable reaches the threshold more quickly, which makes the model more succeptible to noise, reducing the effect in the difference between the decision inputs, and the model is also much less likely to fail to make a decision. 
+\vspace{1em}
+
+On the other hand, when $\mu$ is large, the decision variable takes longer to reach the threshold, which makes the model less succeptible to noise, increasing the effect of the difference between the decision inputs, and the model also becomes much more likely to fail to make a decision.
+\vspace{1em}
+
+Now, when we vary the noise term $\sigma$, we can observe that the model becomes less responsive to the difference in the decision inputs as $\sigma$ increases. It quickly approaches a 50-50 chance of choosing either option, thus becoming purely stochastic. The model also becomes extremely unlikely to fail to make a decision as $\sigma$ increases.
+\vspace{1em}
+
+
+Finally, when we vary the difference between the decision inputs $E = I_A - I_B$, we observe that the model goes from being very likely to choose option $B$ to being very likely to choose option $A$ as $E$ increases. All the while, the model is extremely unlikely to fail to make a decision.
+\vspace{1em}
+
+Overall, we can characterize the effects of the parameters on the model as follows. The threshold value $\mu$ is negatively correlated with the speed of the decision-making process, the likelihood of making a decision, and the influence of the noise term, and is positively correlated with the influence of the decision inputs. The noise term $\sigma$ is negatively correlated with the influence of the decision inputs, and is positively correlated likelihood of making a decision. The difference between the decision inputs $E$ controls the bias of the model. 
+\vspace{1em}
+\FloatBarrier
+
+
+\section{}
+
+In our last exercise regarding the drift-diffusion model, we plot the reaction time distributions for both decisions given varying differences in decision inputs:
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{141.png} 
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{142.png}
+    \end{minipage}\hfill
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{143.png}
+    \end{minipage}
+\end{figure}
+
+\FloatBarrier
+What we observe from these plots is that as the difference between the decision inputs increases, the reaction time distributions for both decisions become more separated. This is because the decision variable accumulates evidence in favor of one option over the other, and the larger the difference between the decision inputs, the faster the decision variable reaches the threshold for that option. This results in shorter reaction times for the option with the larger decision input and longer reaction times for the option with the smaller decision input. 
+\vspace{1em}
+
+This is reflected in the fact that the distribution of reaction times for option $A$ have a higher peak, indicating that there is a concentration of reaction times around a certain value. We also see a slightly longer tail for the reaction times of option $B$, indicating that there are some trials in which the decision variable takes longer to reach the threshold for option $B$ than for option $A$.
+\newpage
+
+
+
+\setcounter{section}{0}
+\renewcommand{\thesection}{2.\arabic{section}}
+
+\section{}
+
+In this part of the report, we will focus on the application of recurrent neural networks to two-alternative forced-choice tasks. Our first order of business is to generate a dataset of 1000 trials, 500 for training, and 500 for testing. 
+\vspace{1em}
+
+We again employ a noise term $\sigma$ that scales a sampling from a Gaussian distribution with zero mean and unit variance. We also introduce a new notion, velocities, which have a similar purpose to the drift-diffusion model's decision inputs. These velocities indicate the direction and speed of the evidence in the stimulus presented to the agent.
+\vspace{1em}
+
+In this 2AFC task, the agent can decide between $-1$ and $1$, and their decision is correct if the sign of the decision matches the sign of the stimulus, which is determined by the velocity. The possible velocity values for the training set and the test set are $[-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]$. The possible values for the noise term in the training set are $[0, 0.1, 0.05]$. For the test set they are $[0.5, 1]$.
+\vspace{1em}
+
+To generate the input data for the dataset, we sample the velocities and noise terms for each trial, and then generate the input data by adding the noise term to the velocity at each time step. We then generate the target data by setting the target to $1$ if the sign of the input data is positive, and $-1$ if the sign is negative. Below we plot the inputs and targets for a few trials in both sets:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{21.png}
+    \caption{Note that the target data only assumes values of $1$ and $-1$ at the last time step.}
+\end{figure}
+
+We can cleary see the influence of the noise term on the test data, as the input data is much more noisy than the training data. In effect, this serves as a means of preventing us from presuming that are model is better than it actually is due to overfitting, because the test data is inherently more difficult to predict than the training data.
+\vspace{1em}
+
+
+\section{}
+
+In order to train our RNN on this dataset, we need to define a loss function that measures the difference between the predicted output and the target output. This loss value will then be used to update the weights of the network in the direction that minimizes the loss:
+
+\begin{equation}
+    \mathcal{L}=\frac{1}{P} \sum_{p, t, l} M_{p, t, l}\left(z_{p, t, l}- z^*_{p, t, l}\right)^{2}
+\end{equation}
+\vspace{.1em}
+
+This may look complicated, but when we break it down, we see that the loss function is simply the mean squared error between the predicted output $z_{p, t, l}$ and the target output $z^*_{p, t, l}$, where $p$ is the trial index, $t$ is the time step index, and $l$ is the output index.
+\vspace{1em}
+
+Most importantly, the $M_{p, t, l}$ term is a mask that is $1$ if the time step is the last time step of the trial, and $0$ otherwise. This is because we only care about the output at the last time step of the trial, as this is the decision that the agent makes. The loss is then averaged over $P$ many trials.
+\newpage
+
+
+\section{}
+
+We now train the RNN on the training set using the Adam optimizer with a learning rate of $0.0001$ for $30$ epochs. We plot the loss over time below, observing that the loss is below $0.1$ after $27$ epochs:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.5\textwidth]{23.png}
+    \caption{In this case, the loss decreases steadily over the entire training loop.}
+\end{figure}
+
+
+\section{}
+
+Next, we define our accuracy metric as the percentage of trials in which the agent makes the correct decision. To facilitate this calculation, use the sign function to convert the output of the RNN to a decision: 
+
+\begin{equation}
+    \text{Accuracy} = \frac{1}{P} \sum_{p} \left(sign(z_{p})- z^*_{p}\right)
+\end{equation}
+\vspace{.1em}
+
+We then calculate the accuracy of the RNN on both the training and test sets, and find that the accuracy on the training set is $100\%$, while the accuracy on the test set is $91.4\%$. As predicted, this indicates that the model is probably overfitting to the training data, but the difficulty of the test data prevents the model from achieving perfect accuracy.
+\vspace{1em}
+
+
+\section{}
+
+We have access to the trajectories of the outputs of the RNN for each trial, which describes how the decision variable of the agent evolves over time. We plot the trajectories for all of the trials in the dataset below, color coding them according to the true direction of the stimulus:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{24.png}
+    \caption{The dotted lines represent the mean trajectories of the trials for each stimulus direction.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{242.png}
+    \caption{Note that the trajectories are much more noisy for the test data than for the training data.}
+\end{figure}
+
+\FloatBarrier
+In the training data, which we know was generated using lower values for the noise term, we can see that the trajectories are much smoother and more consistent. They converge upon the correct velocity values, and the mean trajectories converge on the correct decision values.
+\vspace{1em}
+
+The trajectories for the test data, on the other hand, are much more noisy and less consistent. This is consistent with our expectations, as the test data was generated using higher values for the noise term. However, we observe that the mean trajectories still converge on the correct decision values, indicating that the model is able to generalize to the test data despite the increased noise.
+\vspace{1em}
+
+
+\section{}
+
+Finally, we conduct PCA analysis on the population activity of the "neurons" of the RNN. This may sound strange, but the idea is that each node of the RNN represents a neuron in the agent. In our definition of the RNN, we apply \texttt{torch.tanh()} to our input vector $\boldsymbol{x}$ to produce a "firing rate". The input vector $\boldsymbol{x}$ is imagined as the membrane voltage of the neuron. 
+\vspace{1em}
+
+The idea behind applying PCA to the population activity of the neurons is this the activity actually exists on a lower dimensional space than that which the shape of the data suggests. By applying PCA, we can reduce the dimensionality of the data and visualize the population activity in a more interpretable way:
+
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{261.png} 
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{262.png}
+    \end{minipage}
+\end{figure}
+\newpage
+
+Before performing PCA, we first had to collect the population activity of the neurons. First we took the array of all of the outputs of the RNN for all of the trials in the dataset, which is equivalent to an array of the membrane voltages of each neuron at each time step for each trial. We then reshaped this array to $(P, T \times N)$, where $P$ is the number of trials, $T$ is the number of time steps, and $N$ is the number of neurons in the RNN. We then applied the \texttt{torch.tanh()} to turn the membrane voltages into firing rates, and then finally applied PCA to the population activity.
+\vspace{1em}
+
+The PCA analysis reveals that the population activity of the neurons is in fact concentrated in a lower dimensional space than the shape of the data suggests. This is because the neurons are correlated with each other, and the activity of one neuron can be predicted from the activity of the other neurons. Furthermore, we observe that how the neurons are organized in the space most likely corresponds to their response to different stimuli. Looking particularly at the test data, we see that the neurons are organized in a way that separates the different stimulus directions, and the different velocities, indicating that the neurons are encoding the stimulus information in their activity.
+\vspace{1em}
+
+
+
+\section*{Conclusion}
+
+In this report, we explored the application of the drift-diffusion model and recurrent neural networks to two-alternative forced-choice tasks. We saw how the both models could be used to simulate the decision-making process of an agent over time. The drift-diffusion model can be used to generate the decision and reaction times of an agent, giving us a valuable tool for comparing cognitive models to behavior data. It also captures a foundational notion of decision-making, that of accumulating evidence over time until a decision threshold is reached. This theory underpins many other models of decision-making, specifically those that conceive of cognitive systems as fundamentally probabilistic.
+\vspace{1em}
+
+
+The recurrent neural network, rather than being just a way of modeling the outputs of a decision process, also models, albeit in an extremely simple way, the actual neuronal dynamics that may be present in the brain of a subject faced with a decision task. The PCA analysis of the population activity of the neurons of the RNN revealed that the neurons organize their activity in a way that separates the different stimulus directions, serving a model for how neurons may encode information about stimuli in their firing rates and mutual activity. This is a powerful demonstration of the potential of RNNs to both model the dynamics of a system and to predict the behavior.
+
+
+
+
+
+
+\end{document}

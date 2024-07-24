@@ -1,0 +1,394 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{placeins}
+
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}  % Set margins
+
+\setlength{\parindent}{0pt}  % Disable paragraph indentation
+\captionsetup[figure]{skip=-10pt} % Adjust space below captions
+\captionsetup[figure]{font=scriptsize, skip=2pt}  % Reduce caption font size and space
+
+% Adjust spacing: \titlespacing*{command}{left}{before-sep}{after-sep}[right-sep]
+\titlespacing*{\section}{0pt}{1.0ex}{1.0ex}
+
+% Custom title command
+\makeatletter
+\renewcommand{\maketitle}{
+    {\raggedleft  % Right align the title block
+    \vspace*{-10pt}  % Reduce the space above the title
+    {\large\@title \par}  % Increase the font size of the title
+    \vspace{5pt}  % Space between title and author
+    {\normalsize\@author \par}
+    \vspace{5pt}  % Space between author and date
+    {\normalsize\@date \par}
+    \vspace{20pt}}  % Space after the title block
+}
+\makeatother
+
+\begin{document}
+
+\title{Models for Neural Activation}
+\author{Daniel Dager}
+\date{}
+\maketitle
+
+\pagestyle{empty} % This will apply to all pages
+\thispagestyle{empty}
+
+\renewcommand{\thesection}{1.\arabic{section}}
+
+\section*{Introduction}
+In this report, we examine key elements of neural communication in the brain, with a focus on action potentials. Part I analyzes how neurons encode external stimuli into sequences of action potentials, employing statistical tools to interpret these spike trains and understand their variability through raster plots and histograms. This analysis helps us grasp the ways neurons respond to various stimuli and the underlying patterns in their electrical activity.
+\vspace{4pt}
+
+Part II transitions to understanding the biophysical mechanisms of action potential generation. Starting with the Leaky Integrate-and-Fire model, we simulate the basic process of neuronal activation and then delve into the Hodgkin-Huxley model to explore the complex interactions of ion channels in neurons. These investigations provide crucial insights into the processes that govern neuronal behavior and responses, fundamental to deciphering the brain's intricate signaling systems.
+\vspace{6px}
+
+\section*{Part I}
+
+\section{}
+The following raster plot shows the spike train of a single "neuron" with a firing rate of 250 Hz over a 1-second (1000 ms) period. It was generated via a random binomial process with a probability of 0.25.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{1.1.pdf}
+\end{figure}
+
+\section{}
+Now we generate 300 spike trains using the same process but with a firing rate of 80 Hz (binomial rate of .08). The raster plot below shows the spike trains of the first 40 neurons over a 1-second period.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.8\textwidth]{1.2.1.pdf}
+\end{figure}
+
+The following figure is a histogram of the spike counts for each neuron. The distribution is centered around 80 spikes, which is consistent with the firing rate of 80 Hz.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{1.2.2.pdf}
+    \vspace{-10pt}
+\end{figure}
+
+
+\section{}
+The following figure is a histogram of interspike intervals for the 300 spike trains. The interspike interval is the number of time steps between spikes. The distribution decays exponentially, the longer the interval between spikes, the higher the culmulative probability of that a spike will occur. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.60\textwidth]{1.3.pdf}
+\end{figure}
+
+The Coefficient of Variance is a measure of the variability of the interspike intervals. It is calculated by dividing the mean by the standard deviation. The CV for the interspike intervals above is approximately 1.05, which indicates that the spike trains are slightly less regular than a poisson process, which would have a CV of 1.
+\vspace{6px}
+
+\section{}
+If we plot a Gaussian curve over the histogram from question 1.2, with the same mean and standard deviation as the spike counts therein, we can see that the spike counts do indeed follow a normal distribution. This is because a binomial process was used to generate the spike trains. The Central Limit Theorem states that the sum of a large number of independent random variables will be approximately normally distributed.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.60\textwidth]{1.4.pdf}
+\end{figure}
+
+\setcounter{section}{0}
+\renewcommand{\thesection}{2.\arabic{section}}
+
+\section{}
+In plotting the raster plot for the first stimulus in our dataset, we can see that the neuron fires at a higher rate and at regular intervals during the stimulus period between 200ms and 700ms. We can also infer that the subject is presented with the stimulus 5 times in each trial. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.60\textwidth]{2.1.pdf}
+    \vspace{-15pt}
+\end{figure}
+
+
+\section{}
+Summing over the number of spikes in each spike train during the stimulus period 200ms-700ms, we find that the mean spike count is 16.5, the variance is 3.25, and the mean firing rate is 33 Hz, because we are looking at a 500ms interval, so $16.5 \ \text{spikes} / 500\text{ms} = 33 \ \text{Hz}$.
+\vspace{4pt}
+
+\section{}
+Now we plot a bar chart of the spike density across all trials of the first stimulus. The spike density is the average number of spikes at each time step divided by size of the time step. Thus, this graph shows the instantaneous firing rate of the neuron at each time step, meaning, such that if we applied it to the entire trial period, it would be the average firing rate of the neuron.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.60\textwidth]{2.3.pdf}
+    \vspace{-8pt}
+
+\end{figure}
+
+The spike density is highest when the subject is presented with the stimulus, which is consistent with the raster plot in question 2.1. Because our time steps are 5ms, a spike density of 200 Hz, as we see at each presentation of the stimulus, corresponds to an average of 1 spike per each 5ms interval where the stimulus is presented.
+\vspace{8px}
+
+
+\section{}
+The next page contains a raster plot of every trial for all 8 stimuli. The background is colored in alternating white and grey to indicate the different stimuli. The following page has bar plots for the spike densities of each stimuli. As the stimulus frequency increases, we see a comensurate increase in the number of time steps with high instantaneous firing rates. We can speculate that the neuron is encoding the stimulus frequency in its firing rate.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{2.4.1.pdf}
+    \vspace{-8pt}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{2.4.2.pdf}
+    \vspace{-8pt}
+\end{figure}
+
+
+\FloatBarrier
+\section{}
+This figure shows the spike density of the neuron for each stimulus. The neuron fires at a higher rate when the stimulus frequency is higher, which suggests that the neuron is encoding the frequency of the stimulus in its firing rate. We have fitted a linear regression line to the data, which demonstrates that the relationship between the stimulus frequency and the neuron's firing rate is approximately linear.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{2.5.pdf}
+\end{figure}
+\newpage
+
+\section*{Part II}
+\vspace{4px}
+
+\setcounter{section}{0}
+\renewcommand{\thesection}{1.\arabic{section}}
+
+\section{}
+To simulate the dynamics of the Leaky Integrate-and-Fire model, we use Euler's method, deriving the $\Delta V$ step from the original differential equation for membrane potential:
+
+% The original differential equation
+\begin{equation}
+    C \frac{dV}{dt} = g_L (E_L - V) + I
+\end{equation}
+
+% The Euler's method approximation
+\begin{equation}
+    \Delta V = \left( g_L (E_L - V_{t-1}) + I \right) \frac{\Delta t}{C}
+\end{equation}
+\vspace{1px}
+
+Then we plot the membrane potential over time for a constant input current of 1 nA:
+\vspace{1px}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.5\textwidth]{3.1.pdf}
+\end{figure}
+
+
+\section{}
+We now repeat the process for $I = 2, 3, 4, 5$ nA. The membrane potential increases with the input current:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{3.2.pdf}
+\end{figure}
+
+Because we have not yet implemented the spiking mechanism, the membrane potential increases to a certain point and then remains constant.
+
+\vspace{20pt}
+
+\section{}
+[Exact Solution to Differential Equation]
+
+
+\newpage
+\section{}
+By introducing a spiking threshold $V_{th} = -63\text{mV}$, we can simulate the spiking behavior of the neuron when the membrane potential reaches a certain voltage. We artificially set the membrane potential to $V_{max} = -70\text{mV}$ immediately following the time step where $V_{th}$ is reached, and subsequently reduce it to $V_{reset} = -70\text{mV}$. The following figure shows the membrane potential over time for a constant input current of 1 nA:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{3.4.pdf}
+\end{figure}
+
+
+\section{}
+The previous configuration gives us 7 spikes in a 100ms interval. To see how the spike count evolves, we vary the input current gradually from 1nA to 10nA and plot the spike count over time:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{3.5.pdf}
+\end{figure}
+
+\FloatBarrier
+This method also allows us to investigate at what input current the neuron begins to fire. In this configuration, the neuron begins to fire at an input current of approximately 0.7 nA.
+\vspace{8px}
+
+
+\section{}
+To better simulate the stochastic behavior of neurons, we introduce a random noise term into our membrane potential formula: 
+
+\begin{equation}
+    C \frac{dV}{dt} = g_L (E_L - V) + I + \sigma\eta(t)
+\end{equation}
+\vspace{4px}
+
+Wherein, $\sigma$ is the noise amplitude and $\eta(t)$ is a random variable drawn from a Gaussian distribution with mean 0 and standard deviation 1. We then plot the membrane potential over time for a constant input current of 1 nA and $\sigma = 1$:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{3.6.pdf}
+\end{figure}
+
+\FloatBarrier
+By the same process, we can simulate the spiking behavior of various neurons with noise and use a raster plot to investigate their spiking behavior. The following figure is a raster plot of 10 neurons with varying noise amplitudes:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{3.6.2.pdf}   
+\end{figure}
+\vspace{-10pt}
+
+
+\section{}
+Now, instead of having a continuous input current, we introduce a time-varying input current $I(t)$ using a binomial process with a rate of 0.1, such that approximately 10\% of the time steps have an input current of 10 nA. The following figure shows the membrane potential over time for this configuration:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.6\textwidth]{3.7.pdf}   
+\end{figure}
+
+If instead of providing a stimulus to our model at random intervals, we can administer a stimulus at regular intervals following a certain frenquency. The following figure was produced by applying a linear transformation to the input variable of "stimulus frequency" $F$, which then determined the rate at which the stimulus was administered to the model, so as to produce the same behavior as was observed in question 2.4 in Part I:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1\textwidth]{3.8.pdf}   
+\end{figure}
+
+
+\setcounter{section}{0}
+\renewcommand{\thesection}{2.\arabic{section}}
+\FloatBarrier
+\section{}
+We arrive finally at the Hodgkin-Huxley model, which expands upon the dynamics of the Integrate-and-Fire model by accounting for the interactions of sodium and potassium channels on the membrane potential. The model introduces three gating variables, $n, m,$ and $h$, which represent the permeablilty of the ion channels. As a result, the membrane potential is now governed by the following system of differential equations:
+
+\begin{equation}
+    C \frac{dV}{dt} = g_L (E_L - V) + + g_Kn^4(E_K - V) + g_{Na}m^3h(E_{Na} - V) + I
+\end{equation}
+
+\begin{equation}
+    \frac{dx}{dt} = \alpha (V)(1 - x) - \beta (V)x
+\end{equation}
+\vspace{2px}
+
+And the following six equations for the gating variables:
+
+\begin{equation}
+    \alpha_n = \frac{.01(V + 55)}{1 - \exp(-.1(V + 55))} \quad \beta_n = .125 \exp(-.0125(V + 65))
+\end{equation}
+
+\begin{equation}
+    \alpha_m = \frac{.1(V + 40)}{1 - \exp(-.1(V + 40))} \quad \beta_m = 4 \exp(-0.0556(V + 65))
+\end{equation}
+
+\begin{equation}
+    \alpha_h = .07 \exp(-.05(V + 65)) \quad \beta_h = 1 / 1 + \exp(-.1(V + 35))
+\end{equation}
+\vspace{2px}
+
+
+
+To find the stationary solution to equation $(5)$, we begin by setting $\frac{dI}{dt} = 0$ and solving for $x$: 
+
+\begin{equation}
+    0 = \frac{dx}{dt} \\
+    = \alpha(V)(1 - x) - \beta(V)x \\
+    = \alpha(V) - (\alpha(V) + \beta(V))x
+\end{equation}
+
+\begin{equation}
+    x = \frac{\alpha(V)}{\alpha(V) + \beta(V)}
+\end{equation}
+\vspace{6px}
+
+Then we solve for the initial values of $n, m,$ and $h$ setting $V_0 = E_L = -54.4$:
+
+\vspace{4px}
+
+\begin{equation}
+    \alpha_n = \frac{.01(-54.4 + 55)}{1 - \exp(-.1(-54.4 + 55))} = .103 \\ 
+    \quad \quad \\
+    \beta_n = .125 \exp(-.0125(-54.4 + 65)) = .109
+\end{equation}
+
+\begin{equation}
+    n_0 = \frac{.103}{.103 + .109} = .486
+\end{equation}
+
+\begin{equation}
+    \alpha_m = \frac{.1(-54.4 + 40)}{1 - \exp(-.1(-54.4 + 40))} = .447 \\ 
+    \quad \quad \\
+    \beta_m = 4 \exp(-0.0556(-54.4 + 65)) = 2.219
+\end{equation}
+
+\begin{equation}
+    m_0 = \frac{.447}{.447 + 2.219} = .168
+\end{equation}
+
+\begin{equation}
+    \alpha_h = .07 \exp(-.05(-54.4 + 65)) = .041 \\ 
+    \quad \quad \\
+    \beta_h = 1 / 1 + \exp(-.1(-54.4 + 35)) = .126
+\end{equation}
+
+\begin{equation}
+    h_0 = \frac{.041}{.041 + .126} = .246
+\end{equation}
+\vspace{6px}
+
+\newpage
+Finally, we use these initial values to plot the membrane potential over time for a constant input current of 10 nA using Euler's method with a time step of 0.1 ms:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.55\textwidth]{4.1.1.pdf}
+    \includegraphics[width=.55\textwidth]{4.1.2.pdf}
+\end{figure}
+\vspace{-20px}
+
+
+
+\section{}
+The lowest input current that generates a spike using this configuration is approximately 8.133 nA, wherein the first spike occurs at $t =$ 954.4ms. The neuron then fires continously at a rate of approximately 318.3 Hz:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=.55\textwidth]{4.1.3.pdf}
+    \includegraphics[width=.55\textwidth]{4.1.4.pdf}
+\end{figure}
+
+
+
+
+
+\newpage
+\section*{Conclusion}
+In conclusion, this report presented an in-depth analysis of models for simulating neuronal behavior and interpreting spike train data. In Part I, we focused on decoding the neural encoding of external stimuli through the statistical analysis of spike trains. The use of raster plots, histograms, and coefficient of variance calculations allowed us to understand the variability and distribution patterns within these neural responses. This statistical approach is pivotal in comprehending how external stimuli is encoded into  patterns of neurological activity.
+\vspace{8px}
+
+In Part II, we delved into the biophysical dynamics that govern neural activity through the Leaky Integrate-and-Fire and Hodgkin-Huxley models. The Hodgkin-Huxley model, in incorporating the interactions of sodium and potassium channels, allowed us to more closely approach the known biological mechanisms of neuronal behavior. These models serve not only as tools for understanding the fundamental principles of neural function, providing a foundation for future interpretion of more complex neural phenomena.
+
+
+\end{document}
+
+
+
+
+
+% \begin{figure}[ht]
+%     \centering
+%     \begin{minipage}{0.48\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{1.2.1.pdf} % First graph
+%         \caption{Total Contagion at Day 117}
+%     \end{minipage}\hfill
+%     \begin{minipage}{0.48\textwidth}
+%         \centering
+%         \includegraphics[width=\textwidth]{1.2.2.pdf} % Second graph
+%         \caption{Total Contagion at Day 90}
+%     \end{minipage}
+% \end{figure}
+

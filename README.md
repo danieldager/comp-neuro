@@ -1,1 +1,1 @@
-# comp-neuro
+# comp-neuro-methods
